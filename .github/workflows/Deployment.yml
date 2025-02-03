@@ -1,0 +1,17 @@
+name: Deploy function app
+
+on:
+  workflow_call:
+  
+jobs: 
+  steps:
+  - uses: actions/download-artifact@master
+    with:
+      name: '${{ env.PACKAGE_NAME }}'
+      path: './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}bin/Release/net8.0'
+  - name: 'Run Azure Functions Action'
+      uses: Azure/functions-action@v1
+      with:
+        app-name: ${{ env.AZURE_FUNCTIONAPP_PRD_NAME }}
+        package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}bin/Release/net8.0'
+        publish-profile: ${{ secrets.AZ_GETSHAREWITHDETAILS}}
