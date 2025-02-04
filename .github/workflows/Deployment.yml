@@ -2,7 +2,11 @@ name: Deploy function app
 
 on:
   workflow_call:
-  
+  inputs:
+    PACKAGE_NAME:
+    required: true
+    type: string
+    
 jobs: 
   steps:
   - uses: actions/download-artifact@master
