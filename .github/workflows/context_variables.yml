@@ -17,3 +17,5 @@ jobs:
           AZURE_FUNCTIONAPP_NAME: ${{ vars.IDVERIFICATIONDEV }}
   test_deploy:
     uses: ./.github/workflows/test_deploy.yml
+    with:
+      AZURE_FUNCTIONAPP_NAME: ${{ vars.IDVERIFICATIONDEV }}
