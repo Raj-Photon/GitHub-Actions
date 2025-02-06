@@ -67,7 +67,7 @@ jobs:
     steps:
       - name: Configuration for Dev branch
         if: ${{ github.ref == 'refs/heads/dev' }}
-        uses: ./.github/workflows/Deployment.yml
+        uses: ./.github/workflows/test_deploy.yml
         with:
          functionapp_name: ${{ vars.IDVERIFICATIONDEV }}
          package_name: ${{ env.PACKAGE_NAME }}
