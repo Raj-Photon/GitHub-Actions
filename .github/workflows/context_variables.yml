@@ -14,7 +14,6 @@ jobs:
           echo "Workflow Name : ${{ github.workflow }}"
           echo "Triggered by : ${{ github.triggering_actor }}"
           echo "Function app name: ${{ vars.IDVERIFICATIONDEV }}"
-          AZURE_FUNCTIONAPP_NAME: ${{ vars.IDVERIFICATIONDEV }}
   test_deploy:
     uses: ./.github/workflows/test_deploy.yml
     with:
