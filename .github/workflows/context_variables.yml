@@ -13,4 +13,4 @@ jobs:
           echo "Repository Name : ${{ github.repository }}"
           echo "Workflow Name : ${{ github.workflow }}"
           echo "Triggered by : ${{ github.triggering_actor }}"
-          echo "Function app name: $$(secrets.IDVERIFICATIONDEV)"
+          echo "Function app name: ${{secrets.IDVERIFICATIONDEV}}"
