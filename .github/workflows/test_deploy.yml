@@ -1,14 +1,15 @@
 name: test deployment
+
 on: 
   workflow_call:
-  inputs:
-    AZURE_FUNCTIONAPP_NAME:
-    required: true
-    type: string
-jobs: 
-  steps:
+    inputs:
+      functionapp_name:
+        type: string
+        required: true
+jobs:
+  my-job:
     runs-on: ubuntu-latest
     steps:
-      - name: "Checking Context Variable"
+      - name: Print Inputs
         run: |
-          echo "Functionapp Name : ${{ AZURE_FUNCTIONAPP_NAME }}"
+          echo "Release Type: ${{ inputs.functionapp_name }}"
