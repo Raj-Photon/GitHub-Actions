@@ -1,0 +1,74 @@
+name: fnWynnChkinChkoutValidationDeploy.yml
+
+#run-name: Deployed ${{ inputs.deploy_target }} by @${{ github.actor }} On ${{ github.repository }} 
+
+on:
+  push:
+    branches: 
+       - main
+    paths:
+      - .github/workflows/fnWynnChkinChkoutValidationDeploy.yml
+      - 'Wynn.Validation/Function/**'
+  pull_request: 
+    branches: ["main","dev","stage"]
+    paths:
+      - .github/workflows/fnWynnChkinChkoutValidationDeploy.yml
+      - 'Wynn.Validation/Function/**'
+  workflow_dispatch:
+
+permissions: 
+  id-token: write   
+  contents: read
+env:
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'Wynn.Validation/Function/'  # set this to the path to your function app project, defaults to the repository root
+  DOTNET_VERSION: '8.0.x'            
+  PACKAGE_NAME: 'azfunpackage'  
+jobs:
+  Build:
+    runs-on: windows-latest
+    outputs:
+      CURRENT_BRANCH: ${{ steps.extract_branch.outputs.branch }}
+      publishProfiles: ${{ steps.publishProfileRetrieval.outputs.publishProfiles }}   
+    steps:
+    - name: 'Checkout GitHub Action'
+      uses: actions/checkout@v4
+    - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: 'Resolve Project Dependencies Using Dotnet'
+      shell: pwsh # For Linux, use bash
+      run: |
+        # mkdir -p /Artifact
+        pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+        echo './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+        dotnet publish --configuration Release --output /Artifact
+        popd
+        echo "PACKAGE_NAME=PACKAGE_NAME${{ github.GITHUB_RUN_NUMBER }}" >> $GITHUB_ENV
+    - name: Test
+      run: dotnet test Wynn.Validation/Test/Wynn.Tests.Validation.csproj #--no-build
+    - uses: actions/upload-artifact@v4
+      with:
+          name: ${{ env.PACKAGE_NAME }}
+          include-hidden-files: true
+          path: './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}bin/Release/net8.0'
+    - name: Extract Branch Name
+      shell: bash
+      run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      id: extract_branch
+     
+    - name: Print Branch Name
+      run: | 
+            echo ${{ steps.extract_branch.outputs.branch }}
+  Deployment:
+    needs: Build
+    runs-on: windows-latest
+    steps:
+      -name: Configuration for Dev branch
+       if: ${{ github.ref == 'refs/heads/dev' }}
+       uses: ./.github/workflows/Deployment.yml
+       with:
+         functionapp_name: ${{ vars.IDVERIFICATIONDEV }}
+         package_name: ${{ env.PACKAGE_NAME }}
+         functionapp_package_path: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
