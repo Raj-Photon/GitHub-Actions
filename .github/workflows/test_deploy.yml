@@ -1,4 +1,4 @@
-name: deployment
+name: test_deployment
 
 on: 
   workflow_call:
@@ -21,5 +21,3 @@ jobs:
           echo "Release Type: ${{ inputs.functionapp_name }}"
           echo "Release Type: ${{ inputs.package_name }}"
           echo "Release Type: ${{ inputs.functionapp_package_path }}"
-          
-          
