@@ -1,4 +1,4 @@
-name: test deployment
+name: deployment
 
 on: 
   workflow_call:
@@ -6,10 +6,20 @@ on:
       functionapp_name:
         type: string
         required: true
+      package_name:
+        type: string
+        required: true
+      functionapp_package_path:
+        type: string
+        required: true
 jobs:
-  my-job:
-    runs-on: ubuntu-latest
+  Deployment:
+    runs-on: windows-latest
     steps:
       - name: Print Inputs
         run: |
           echo "Release Type: ${{ inputs.functionapp_name }}"
+          echo "Release Type: ${{ inputs.package_name }}"
+          echo "Release Type: ${{ inputs.functionapp_package_path }}"
+          
+          
