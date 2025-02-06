@@ -1,21 +1,28 @@
-name: Deploy function app
+name: deployment
 
-on:
+on: 
   workflow_call:
-  inputs:
-    PACKAGE_NAME:
-    required: true
-    type: string
-    
-jobs: 
-  steps:
-  - uses: actions/download-artifact@master
-    with:
-      name: '${{ env.PACKAGE_NAME }}'
-      path: './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}bin/Release/net8.0'
-  - name: 'Run Azure Functions Action'
-      uses: Azure/functions-action@v1
-      with:
-        app-name: ${{ env.AZURE_FUNCTIONAPP_PRD_NAME }}
-        package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}bin/Release/net8.0'
-        publish-profile: ${{ secrets.AZ_GETSHAREWITHDETAILS}}
+    inputs:
+      functionapp_name:
+        type: string
+        required: true
+      package_name:
+        type: string
+        required: true
+      functionapp_package_path:
+        type: string
+        required: true
+jobs:
+  Deployment:
+    runs-on: windows-latest
+    steps:
+
+      - uses: actions/download-artifact@master
+        with:
+          name: '${{ env.PACKAGE_NAME }}'
+          path: './${{ inputs.functionapp_package_path }}bin/Release/net8.0'
+      - uses: Azure/functions-action@v1
+        with:
+          app-name: '${{ inputs.functionapp_name }}'
+          package: '${{ inputs.functionapp_package_path }}bin/Release/net8.0'
+          publish-profile: ${{ secrets.AZ_GETSHAREWITHDETAILS_PUB_PROFILE }}
