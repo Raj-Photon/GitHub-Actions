@@ -65,10 +65,10 @@ jobs:
     needs: Build
     runs-on: windows-latest
     steps:
-      -name: Configuration for Dev branch
-       if: ${{ github.ref == 'refs/heads/dev' }}
-       uses: ./.github/workflows/Deployment.yml
-       with:
+      - name: Configuration for Dev branch
+        if: ${{ github.ref == 'refs/heads/dev' }}
+        uses: ./.github/workflows/Deployment.yml
+        with:
          functionapp_name: ${{ vars.IDVERIFICATIONDEV }}
          package_name: ${{ env.PACKAGE_NAME }}
          functionapp_package_path: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
