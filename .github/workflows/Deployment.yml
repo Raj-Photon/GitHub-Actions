@@ -19,7 +19,7 @@ jobs:
 
       - uses: actions/download-artifact@master
         with:
-          name: '${{ env.PACKAGE_NAME }}'
+          name: '${{ inputs.package_name }}'
           path: './${{ inputs.functionapp_package_path }}bin/Release/net8.0'
       - uses: Azure/functions-action@v1
         with:
