@@ -48,9 +48,7 @@ jobs:
     uses: ./.github/workflows/deploy.yml  # Reference the reusable deployment workflow
     with:
       environment: ${{ needs.Build.outputs.CURRENT_BRANCH }}
-      function_app_name: ${{ github.event.inputs.branch == 'dev' && 'Wynn-ChkinChkoutValidation-Dev' ||
-                              github.event.inputs.branch == 'stage' && 'Wynn-ChkinChkoutValidation-Stg' ||
-                              github.event.inputs.branch == 'main' && 'Wynn-ChkinChkoutValidation-Prd' }}
+      function_app_name: ${{ github.event.inputs.branch == 'main' && 'Wynn-ChkinChkoutValidation-Prd' }}
       package_name: 'azfunpackage'
       package_path: 'Wynn.Validation/Function/'
       publish_profile: 'AZ_CHKINCHKOUTVALIDATION_PUB_PROFILE'  # Use the publish profile secret name
