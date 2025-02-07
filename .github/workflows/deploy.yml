@@ -33,17 +33,23 @@ jobs:
   Deploy:
     runs-on: windows-latest
     steps:
-      - name: Download Artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: ${{ inputs.package_name }}
-          path: './${{ inputs.package_path }}bin/Release/net8.0'
+      - name: Print Inputs
+        run: |
+          echo "Release Type: ${{ inputs.functionapp_name }}"
+          echo "Release Type: ${{ inputs.package_name }}"
+          echo "Release Type: ${{ inputs.functionapp_package_path }}"
+          echo "Release Type: ${{ inputs.environment }}"
+      #- name: Download Artifact
+      #  uses: actions/download-artifact@v2
+      #  with:
+      #    name: ${{ inputs.package_name }}
+      #    path: './${{ inputs.package_path }}bin/Release/net8.0'
 
-      - name: Run Azure Functions Action
-        uses: Azure/functions-action@v1
-        id: fa
-        with:
-          package: './${{ inputs.package_path }}bin/Release/net8.0'
-          publish-profile: ${{ secrets[inputs.publish_profile] }}  # Use the provided secret
-          app-name: ${{ inputs.function_app_name }}
-          environment: ${{ inputs.environment }}
+      #- name: Run Azure Functions Action
+      #  uses: Azure/functions-action@v1
+      #  id: fa
+      #  with:
+      #    package: './${{ inputs.package_path }}bin/Release/net8.0'
+      #    publish-profile: ${{ secrets[inputs.publish_profile] }}  # Use the provided secret
+      #    app-name: ${{ inputs.function_app_name }}
+      #    environment: ${{ inputs.environment }}
