@@ -28,12 +28,12 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Resolve Project Dependencies Using Dotnet
-        shell: pwsh
-        run: |
-          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-          dotnet publish --configuration Release --output /Artifact
-          popd
+      #- name: Resolve Project Dependencies Using Dotnet
+      #  shell: pwsh
+      #  run: |
+          #pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+          #dotnet publish --configuration Release --output /Artifact
+          #popd
 
       - name: Extract Branch Name
         shell: bash
@@ -45,7 +45,7 @@ jobs:
 
   Deploy:
     needs: Build
-    uses: ./path/to/deploy.yml  # Reference the reusable deployment workflow
+    uses: .github/workflows/deploy.yml  # Reference the reusable deployment workflow
     with:
       environment: ${{ steps.extract_branch.outputs.branch }}
       function_app_name: ${{ github.event.inputs.branch == 'dev' && 'Wynn-ChkinChkoutValidation-Dev' ||
