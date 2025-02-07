@@ -45,7 +45,7 @@ jobs:
 
   Deploy:
     needs: Build
-    uses: .github/workflows/deploy.yml  # Reference the reusable deployment workflow
+    uses: ./.github/workflows/deploy.yml  # Reference the reusable deployment workflow
     with:
       environment: ${{ steps.extract_branch.outputs.branch }}
       function_app_name: ${{ github.event.inputs.branch == 'dev' && 'Wynn-ChkinChkoutValidation-Dev' ||
