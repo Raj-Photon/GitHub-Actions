@@ -54,5 +54,5 @@ jobs:
       package_name: 'azfunpackage'
       package_path: 'Wynn.Validation/Function/'
       publish_profile_secret_name: 'AZ_CHKINCHKOUTVALIDATION_PUB_PROFILE'  # Pass the secret name here
-    secrets:
-      AZ_CHKINCHKOUTVALIDATION_PUB_PROFILE: ${{ secrets.AZ_CHKINCHKOUTVALIDATION_PUB_PROFILE }}  # Pass the actual secret value here
+    #secrets:
+     # AZ_CHKINCHKOUTVALIDATION_PUB_PROFILE: ${{ secrets.AZ_CHKINCHKOUTVALIDATION_PUB_PROFILE }}  # Pass the actual secret value here
