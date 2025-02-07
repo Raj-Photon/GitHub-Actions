@@ -31,9 +31,9 @@ jobs:
       - name: Resolve Project Dependencies Using Dotnet
         shell: pwsh
         run: |
-          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-          dotnet publish --configuration Release --output /Artifact
-          popd
+          #pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+          echo"dotnet publish --configuration Release --output /Artifact"
+          #popd
 
       - name: Extract Branch Name
         shell: bash
