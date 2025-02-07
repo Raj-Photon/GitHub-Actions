@@ -19,8 +19,8 @@ on:
         description: 'The path to the function app package'
         required: true
         type: string
-      publish_profile:
-        description: 'The name of the publish profile secret'
+      publish_profile_secret_name:
+        description: 'The secret name for the publish profile'
         required: true
         type: string
 
@@ -37,17 +37,18 @@ jobs:
           echo "Release Type: ${{ inputs.package_name }}"
           echo "Release Type: ${{ inputs.functionapp_package_path }}"
           echo "Release Type: ${{ inputs.environment }}"
-      #- name: Download Artifact
-       # uses: actions/download-artifact@v2
-        #with:
-         # name: ${{ inputs.package_name }}
-          #path: './${{ inputs.package_path }}bin/Release/net8.0'
 
-      #- name: Run Azure Functions Action
-       # uses: Azure/functions-action@v1
-        #id: fa
-        #with:
-          #package: './${{ inputs.package_path }}bin/Release/net8.0'
-          #publish-profile: ${{ secrets[inputs.publish_profile] }}  # Use the secret name passed as input dynamically
-          #app-name: ${{ inputs.function_app_name }}
-          #environment: ${{ inputs.environment }}
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ inputs.package_name }}
+          path: './${{ inputs.package_path }}bin/Release/net8.0'
+
+      - name: Run Azure Functions Action
+        uses: Azure/functions-action@v1
+        id: fa
+        with:
+          package: './${{ inputs.package_path }}bin/Release/net8.0'
+          publish-profile: ${{ secrets[inputs.publish_profile_secret_name] }}  # Access secret using name passed from the main workflow
+          app-name: ${{ inputs.function_app_name }}
+          environment: ${{ inputs.environment }}
