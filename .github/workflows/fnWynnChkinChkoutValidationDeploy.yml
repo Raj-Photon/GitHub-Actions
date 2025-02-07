@@ -45,7 +45,7 @@ jobs:
 
   Deploy:
     needs: Build
-    uses: ./.github/workflows/deploy.yml  # Reference the reusable deployment workflow
+    uses: ./.github/workflows/deploy.yml # Reference the reusable deployment workflow
     with:
       environment: ${{ needs.Build.outputs.CURRENT_BRANCH }}
       function_app_name: ${{ needs.Build.outputs.CURRENT_BRANCH == 'dev' && 'Wynn-ChkinChkoutValidation-Dev' ||
@@ -53,6 +53,6 @@ jobs:
                               needs.Build.outputs.CURRENT_BRANCH == 'main' && 'Wynn-ChkinChkoutValidation-Prd' }}
       package_name: 'azfunpackage'
       package_path: 'Wynn.Validation/Function/'
-      publish_profile: 'AZ_CHKINCHKOUTVALIDATION_PUB_PROFILE'  # Pass the name of the secret here
+      publish_profile_secret_name: 'AZ_CHKINCHKOUTVALIDATION_PUB_PROFILE'  # Pass the secret name here
     secrets:
-      AZ_CHKINCHKOUTVALIDATION_PUB_PROFILE: ${{ secrets.AZ_CHKINCHKOUTVALIDATION_PUB_PROFILE }}  # Secret passed here
+      AZ_CHKINCHKOUTVALIDATION_PUB_PROFILE: ${{ secrets.AZ_CHKINCHKOUTVALIDATION_PUB_PROFILE }}  # Pass the actual secret value here
