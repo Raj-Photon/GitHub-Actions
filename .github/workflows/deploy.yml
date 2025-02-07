@@ -1,0 +1,49 @@
+name: Deploy Function App
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'The environment to deploy (e.g., dev, stage, prod)'
+        required: true
+        type: string
+      function_app_name:
+        description: 'The function app name on Azure'
+        required: true
+        type: string
+      package_name:
+        description: 'The name of the package being deployed'
+        required: true
+        type: string
+      package_path:
+        description: 'The path to the function app package'
+        required: true
+        type: string
+      publish_profile:
+        description: 'The publish profile for Azure Functions'
+        required: true
+        type: string
+    secrets:
+      AZURE_FUNCTIONAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+
+env:
+  DOTNET_VERSION: '8.0.x'
+
+jobs:
+  Deploy:
+    runs-on: windows-latest
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ inputs.package_name }}
+          path: './${{ inputs.package_path }}bin/Release/net8.0'
+
+      - name: Run Azure Functions Action
+        uses: Azure/functions-action@v1
+        id: fa
+        with:
+          package: './${{ inputs.package_path }}bin/Release/net8.0'
+          publish-profile: ${{ secrets[inputs.publish_profile] }}  # Use the provided secret
+          app-name: ${{ inputs.function_app_name }}
+          environment: ${{ inputs.environment }}
