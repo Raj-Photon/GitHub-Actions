@@ -1,0 +1,58 @@
+name: fnWynnChkinChkoutValidationPipeline
+
+on:
+  push:
+    branches:
+      - devopsjan20
+    paths:
+      - .github/workflows/fnWynnChkinChkoutValidationDeploy.yml
+      - 'Wynn.Validation/Function/**'
+  pull_request:
+    branches: ["main", "dev", "stage"]
+    paths:
+      - .github/workflows/fnWynnChkinChkoutValidationDeploy.yml
+      - 'Wynn.Validation/Function/**'
+  workflow_dispatch:
+
+jobs:
+  Build:
+    runs-on: windows-latest
+    outputs:
+      CURRENT_BRANCH: ${{ steps.extract_branch.outputs.branch }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Resolve Project Dependencies Using Dotnet
+        shell: pwsh
+        run: |
+          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+          dotnet publish --configuration Release --output /Artifact
+          popd
+
+      - name: Extract Branch Name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
+
+      - name: Print Branch Name
+        run: echo ${{ steps.extract_branch.outputs.branch }}
+
+  Deploy:
+    needs: Build
+    uses: ./path/to/deploy.yml  # Reference the reusable deployment workflow
+    with:
+      environment: ${{ steps.extract_branch.outputs.branch }}
+      function_app_name: ${{ github.event.inputs.branch == 'dev' && 'Wynn-ChkinChkoutValidation-Dev' ||
+                              github.event.inputs.branch == 'stage' && 'Wynn-ChkinChkoutValidation-Stg' ||
+                              github.event.inputs.branch == 'main' && 'Wynn-ChkinChkoutValidation-Prd' }}
+      package_name: 'azfunpackage'
+      package_path: 'Wynn.Validation/Function/'
+      publish_profile: 'AZ_CHKINCHKOUTVALIDATION_PUB_PROFILE'  # Use the publish profile secret name
+    secrets:
+      AZURE_FUNCTIONAPP_PUBLISH_PROFILE: ${{ secrets.AZ_CHKINCHKOUTVALIDATION_PUB_PROFILE }}
