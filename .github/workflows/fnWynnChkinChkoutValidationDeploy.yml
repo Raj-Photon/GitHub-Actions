@@ -28,12 +28,12 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      #- name: Resolve Project Dependencies Using Dotnet
-       # shell: pwsh
-        #run: |
-         #pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-         #dotnet publish --configuration Release --output /Artifact
-         #popd
+      - name: Resolve Project Dependencies Using Dotnet
+        shell: pwsh
+        run: |
+          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+          dotnet publish --configuration Release --output /Artifact
+          popd
 
       - name: Extract Branch Name
         shell: bash
@@ -53,6 +53,6 @@ jobs:
                               needs.Build.outputs.CURRENT_BRANCH == 'main' && 'Wynn-ChkinChkoutValidation-Prd' }}
       package_name: 'azfunpackage'
       package_path: 'Wynn.Validation/Function/'
-      publish_profile: 'AZ_CHKINCHKOUTVALIDATION_PUB_PROFILE'  # Reference the secret name, not the value
+      publish_profile: 'AZ_CHKINCHKOUTVALIDATION_PUB_PROFILE'  # Pass the name of the secret here
     secrets:
-      AZURE_FUNCTIONAPP_PUBLISH_PROFILE: ${{ secrets.AZ_CHKINCHKOUTVALIDATION_PUB_PROFILE }}
+      AZ_CHKINCHKOUTVALIDATION_PUB_PROFILE: ${{ secrets.AZ_CHKINCHKOUTVALIDATION_PUB_PROFILE }}  # Secret passed here
