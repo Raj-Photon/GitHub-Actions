@@ -23,8 +23,6 @@ on:
         description: 'The publish profile for Azure Functions'
         required: true
         type: string
-    secrets:
-      AZURE_FUNCTIONAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
 
 env:
   DOTNET_VERSION: '8.0.x'
