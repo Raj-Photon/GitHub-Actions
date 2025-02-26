@@ -33,10 +33,11 @@ jobs:
     steps:
       - name: Print Inputs
         run: |
+          echo "Release Type: ${{ inputs.environment }}"
           echo "Release Type: ${{ inputs.function_app_name }}"
           echo "Release Type: ${{ inputs.package_name }}"
           echo "Release Type: ${{ inputs.package_path }}"
-          echo "Release Type: ${{ inputs.environment }}"
+          echo "Release Type: ${{ inputs.publish_profile_secret_name }}"
 
       - name: Download Artifact
         uses: actions/download-artifact@v4
