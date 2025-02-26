@@ -47,7 +47,9 @@ jobs:
     needs: Build
     uses: ./.github/workflows/deploy.yml # Reference the reusable deployment workflow
     with:
-      environment: ${{ needs.Build.outputs.CURRENT_BRANCH }}
+      environment: ${{ needs.Build.outputs.CURRENT_BRANCH == 'dev' && 'Dev' ||
+                              needs.Build.outputs.CURRENT_BRANCH == 'stage' && 'STG' ||
+                              needs.Build.outputs.CURRENT_BRANCH == 'main' && 'PRD' }}
       function_app_name: ${{ needs.Build.outputs.CURRENT_BRANCH == 'dev' && 'Wynn-ChkinChkoutValidation-Dev' ||
                               needs.Build.outputs.CURRENT_BRANCH == 'stage' && 'Wynn-ChkinChkoutValidation-Stg' ||
                               needs.Build.outputs.CURRENT_BRANCH == 'main' && 'Wynn-ChkinChkoutValidation-Prd' }}
