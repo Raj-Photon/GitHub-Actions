@@ -1,0 +1,114 @@
+name: Develop
+
+on:
+  workflow_dispatch:
+
+jobs:
+  plan:
+    environment:
+      name: develop
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./terraform
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Set environment variables
+        run: |
+          echo "ARM_SUBSCRIPTION_ID=${{ secrets.AZURE_SUBSCRIPTION_ID }}" >> $GITHUB_ENV
+          echo "ARM_USE_MSI=true" >> $GITHUB_ENV
+
+      - name: Log in to Azure
+        run: |
+          az login --identity --allow-no-subscriptions
+          az account set --subscription "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+
+      - name: Create Storage Account
+        run: |
+          ACCOUNT_CHECK=$(az storage account check-name --name ${{ vars.AZURE_STORAGE_ACCOUNT_NAME }} --query 'nameAvailable' --output tsv)
+          if [ "$ACCOUNT_CHECK" = "false" ]; then
+            echo "Storage account ${{ vars.AZURE_STORAGE_ACCOUNT_NAME }} already exists."
+          else
+            echo "Creating storage account ${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}..."
+            az storage account create --name ${{ vars.AZURE_STORAGE_ACCOUNT_NAME }} --resource-group ${{ vars.AZURE_RESOURCE_GROUP_NAME }} --location ${{ vars.AZURE_LOCATION }} --sku Standard_LRS
+            echo "Storage account ${{ vars.AZURE_STORAGE_ACCOUNT_NAME }} created."
+          fi
+
+          STORAGE_KEY=$(az storage account keys list --resource-group ${{ vars.AZURE_RESOURCE_GROUP_NAME }} --account-name ${{ vars.AZURE_STORAGE_ACCOUNT_NAME }} --query '[0].value' --output tsv)
+
+          CONTAINER_EXISTS=$(az storage container exists --name ${{ vars.AZURE_CONTAINER_NAME }} --account-name ${{ vars.AZURE_STORAGE_ACCOUNT_NAME }} --account-key $STORAGE_KEY --query 'exists' --output tsv)
+          if [ "$CONTAINER_EXISTS" = "true" ]; then
+            echo "Container ${{ vars.AZURE_CONTAINER_NAME }} already exists."
+          else
+            echo "Creating container ${{ vars.AZURE_CONTAINER_NAME }}..."
+            az storage container create --name ${{ vars.AZURE_CONTAINER_NAME }} --account-name ${{ vars.AZURE_STORAGE_ACCOUNT_NAME }} --account-key $STORAGE_KEY
+            echo "Container ${{ vars.AZURE_CONTAINER_NAME }} created."
+          fi
+
+      - name: Terraform Init
+        run: |
+          terraform init -reconfigure \
+            -backend-config="storage_account_name=${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}" \
+            -backend-config="resource_group_name=${{ vars.AZURE_RESOURCE_GROUP_NAME }}" \
+            -backend-config="container_name=${{ vars.AZURE_CONTAINER_NAME }}"
+
+      - name: Terraform Plan
+        run: terraform plan -var-file ${{ vars.VAR_FILE_NAME }} -out ${{ vars.OUT_FILE_NAME }}
+        
+      # Upload the Terraform plan file as an artifact
+      - name: Upload Terraform plan out file
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan
+          path: ${{ github.workspace }}/Terraform/${{ vars.OUT_FILE_NAME }}
+
+  apply:
+    runs-on: [self-hosted, develop]
+    needs: plan
+    environment:
+      name: develop
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./Terraform
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Download the Terraform plan file from artifacts
+      - name: Download Terraform plan
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-plan
+          path: ${{ github.workspace }}/Terraform
+
+      - name: Set environment variables
+        run: |
+          echo "ARM_SUBSCRIPTION_ID=${{ secrets.AZURE_SUBSCRIPTION_ID }}" >> $GITHUB_ENV
+          echo "ARM_USE_MSI=true" >> $GITHUB_ENV
+
+      - name: Log in to Azure
+        run: |
+          az login --identity --allow-no-subscriptions
+          az account set --subscription "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+
+      - name: Terraform Init
+        run: |
+          terraform init -reconfigure \
+            -backend-config="storage_account_name=${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}" \
+            -backend-config="resource_group_name=${{ vars.AZURE_RESOURCE_GROUP_NAME }}" \
+            -backend-config="container_name=${{ vars.AZURE_CONTAINER_NAME }}"
+
+      # - name: Terraform Plan
+      #   run: terraform plan -var-file ${{ vars.VAR_FILE_NAME }}
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve ${{ vars.OUT_FILE_NAME }}
