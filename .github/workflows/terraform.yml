@@ -7,7 +7,7 @@ jobs:
   plan:
     environment:
       name: develop
-    runs-on: ubuntu-22.04
+    runs-on: windows-latest
     defaults:
       run:
         shell: bash
@@ -28,6 +28,7 @@ jobs:
       - name: Log in to Azure
         run: |
           az login --identity --allow-no-subscriptions
+          az ad sp list
           az account set --subscription "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
 
       - name: Create Storage Account
