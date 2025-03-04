@@ -26,10 +26,9 @@ jobs:
           echo "ARM_USE_MSI=true" >> $GITHUB_ENV
 
       - name: Log in to Azure
-        run: |
-          az login --identity --allow-no-subscriptions
-          az ad sp list
-          az account set --subscription "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+        uses: Azure/login@v2.2.0
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
 
       - name: Create Storage Account
         run: |
